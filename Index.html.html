@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitectura Transformer - Todo lo que Necesitas Saber</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    <!-- MathJax for LaTeX rendering -->
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary-color: #0f3460;
+            --secondary-color: #16213e;
+            --accent-color: #e94560;
+            --background-light: #f9f9f9;
+            --background-white: #ffffff;
+            --text-dark: #333;
+            --text-light: #fff;
+            --shadow-light: rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: var(--background-light);
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+            line-height: 1.8;
+        }
+
+        header {
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        nav {
+            background-color: var(--primary-color);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px var(--shadow-light);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav a {
+            color: var(--text-light);
+            margin: 0 18px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.05em;
+            transition: color 0.3s ease, text-decoration 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        section {
+            padding: 40px 50px;
+            background-color: var(--background-white);
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px var(--shadow-light);
+        }
+
+        section img {
+            max-width: 100%;
+            height: auto;
+            margin: 30px auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 2em;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--secondary-color);
+            margin-top: 35px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        h4 { /* Added style for h4 elements */
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary-color);
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        p {
+            margin-bottom: 1em;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 1em;
+        }
+
+        ul li {
+            margin-bottom: 12px;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        ul li::before {
+            content: '✨'; /* Changed bullet to a more appealing emoji */
+            color: var(--primary-color);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1.5em;
+            position: absolute;
+            left: 0;
+            font-size: 1.1em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        table, th, td {
+            border: 1px solid #e0e0e0;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: var(--primary-color);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .equation {
+            display: block;
+            overflow-x: auto; /* Allows horizontal scrolling for long equations */
+            padding: 15px;
+            background-color: #eef4f8;
+            border-left: 5px solid var(--accent-color);
+            margin: 25px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        footer {
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            text-align: center;
+            padding: 25px;
+            margin-top: 40px;
+            font-size: 0.9em;
+            box-shadow: 0 -2px 8px var(--shadow-light);
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1><span class="emoji">🌐</span> La Arquitectura Transformer: Una Guía Completa</h1>
+        <p>Descubre cómo esta innovación ha revolucionado el Procesamiento de Lenguaje Natural y la Inteligencia Artificial.</p>
+    </header>
+
+    <nav>
+        <a href="#que-es">¿Qué es?</a>
+        <a href="#componentes">Componentes</a>
+        <a href="#flujo">Flujo</a>
+        <a href="#ventajas">Ventajas</a>
+        <a href="#aplicaciones">Aplicaciones</a>
+        <a href="#implementacion">Implementación</a>
+    </nav>
+
+    <main>
+        <section id="que-es">
+            <h2><span class="emoji">🧠</span> ¿Qué es la Arquitectura Transformer?</h2>
+            <p>
+                El **Transformer** es una arquitectura de redes neuronales revolucionaria en el campo del Procesamiento de Lenguaje Natural (NLP). Introducida en el paper “Attention is All You Need” (2017), reemplaza las redes recurrentes (RNN) y las redes de memoria a corto y largo plazo (LSTM) con un nuevo mecanismo: la <span class="highlight">auto-atención</span>.
+            </p>
+            <p>
+                Su innovación clave radica en eliminar por completo el uso de redes recurrentes (RNN) y convolucionales (CNN), reemplazándolas con un potente mecanismo de <span class="highlight">atención auto-contenido</span> (self-attention).
+            </p>
+            <p>
+                Fue introducido por investigadores de Google Brain y la Universidad de Toronto en la prestigiosa conferencia NIPS 2017, bajo el icónico lema:
+                <br>👉 <span class="highlight">“Attention is all you need”</span> (La atención lo es todo).
+            </p>
+              <img src="Screenshot-from-2019-06-17-19-53-10.webp" alt="Diagrama de Arquitectura Transformer">
+                <figcaption>Representación esquemática de la arquitectura Transformer.</figcaption>
+            </figure>  
+
+        <section id="componentes">
+            <h2><span class="emoji">🧱</span> Componentes Clave de la Arquitectura Transformer</h2>
+            <p>
+                La red neuronal del Transformer se compone de varias capas modulares que operan en conjunto para procesar secuencias de texto de manera eficiente. A continuación, exploramos sus elementos fundamentales:
+            </p>
+
+            <h3><span class="emoji">1.</span> Encoder – Decoder</h3>
+            <ul>
+                <li>**Encoder:** Su función es <span class="highlight">entender el contexto de la secuencia de entrada</span> y crear una representación rica en información. Está compuesto por una pila de 6 capas idénticas.</li>
+                <li>**Decoder:** Su rol es <span class="highlight">generar la secuencia de salida</span> (por ejemplo, la traducción o la continuación de un texto), basándose en lo que entendió el encoder. También consta de una pila de 6 capas idénticas, similares a las del encoder.</li>
+            </ul>
+            <figure>
+                <img src="Screenshot-from-2019-06-17-20-01-32.webp" alt="Diagrama de Arquitectura Transformer">
+                <figcaption>Representación esquemática de la arquitectura Transformer, mostrando el encoder y el decoder.</figcaption>
+            </figure>  
+
+            <h3><span class="emoji">2.</span> Incrustaciones de Entrada (Embeddings)</h3>
+            <p>
+                Esta fase inicial es crucial, ya que convierte la información textual de entrada (como una oración o un fragmento de código) en un formato numérico que el modelo puede interpretar y manipular.
+            </p>
+            <ul>
+                <li>Las palabras se convierten en **vectores numéricos** (como los generados por Word2Vec, GloVe, ELMo) para que el modelo las procese.</li>
+                <li>Estos vectores capturan no solo la identidad de cada token, sino también sus <span class="highlight">características semánticas y sintácticas</span>, permitiendo al modelo entender relaciones y contextos.</li>
+            </ul>
+            <p>
+                📌 **Analogy:** Imagina que representas "banana" y "mango" en un espacio bidimensional:
+                <br>Banana → (2,2)
+                <br>Mango → (13,2)
+                <br>Ambas comparten la categoría "fruta", lo cual se refleja en su proximidad en ciertas dimensiones del espacio vectorial. En la práctica, los embeddings existen en un espacio n-dimensional, donde la distancia y dirección entre vectores denotan similitudes y diferencias de significado.
+            </p>
+
+            <h3><span class="emoji">3.</span> Codificación Posicional (Positional Encoding)</h3>
+            <p>
+                Dado que la arquitectura Transformer procesa las palabras de una secuencia en paralelo y no de forma secuencial como las RNN, necesita un mecanismo para inyectar información sobre la <span class="highlight">posición relativa y absoluta</span> de cada token.
+            </p>
+            <p>
+                Para lograr esto, se añaden a los embeddings de entrada unas codificaciones posicionales únicas, generadas utilizando funciones seno y coseno. Estas funciones permiten que el modelo inferir la posición de cada token y, por ende, su orden dentro de la secuencia.
+            </p>
+            <div class="equation">
+                $PE(pos,2i) = sin(pos / 10000^{2i / d_{model}})$ <br>
+                $PE(pos,2i+1) = cos(pos / 10000^{2i / d_{model}})$
+            </div>
+            <p>
+                Este ingenioso método permite al modelo mantener la noción del orden de las palabras, crucial para la comprensión del lenguaje.
+            </p>
+
+            <h3><span class="emoji">4.</span> Auto-atención (Self-Attention)</h3>
+            <p>
+                Este es el <span class="highlight">mecanismo fundamental</span> del Transformer. Permite al modelo identificar relaciones entre palabras sin importar su distancia en la secuencia. Por ejemplo, en la oración "Paul fue a la tienda y luego <span class="highlight">él</span> compró pan", la auto-atención ayuda al modelo a entender que "él" se refiere a "Paul".
+            </p>
+            <p>
+                Se basa en una función que calcula la similitud entre una consulta (Query, $Q$), un conjunto de claves (Keys, $K$) y sus valores asociados (Values, $V$). Intuitivamente, busca determinar qué partes de la entrada son más relevantes para la palabra actual que se está procesando.
+            </p>
+
+            <h3><span class="emoji">5.</span> Atención Escalada de Producto Punto (Scaled Dot-Product Attention)</h3>
+            <p>
+                Esta es la forma específica en que se implementa la auto-atención. Se comparan las palabras entre sí mediante el producto escalar de vectores $Q$ (Query), $K$ (Key) y $V$ (Value), generando pesos que indican la relevancia entre ellas.
+            </p>
+            <div class="equation">
+                $Attention(Q, K, V) = softmax(QK^T / \sqrt{d_k}) \cdot V$
+            </div>
+            <p>
+                Donde $d_k$ es la dimensión de las claves. El resultado de esta operación es una <span class="highlight">suma ponderada de los valores</span>, donde los pesos son determinados por las puntuaciones de atención calculadas. Esto permite al modelo enfocarse dinámicamente en la información más relevante.
+            </p>
+
+            <h3><span class="emoji">6.</span> Atención Multi-Cabeza (Multi-Head Attention)</h3>
+            <p>
+                Para enriquecer aún más la comprensión contextual, el Transformer no utiliza una única capa de atención, sino que ejecuta <span class="highlight">múltiples mecanismos de atención en paralelo</span> (por ejemplo, 8 "cabezas").
+            </p>
+            <p>
+                Cada "cabeza" de atención aprende a enfocarse en diferentes relaciones y patrones dentro de la secuencia. Por ejemplo, una cabeza podría capturar dependencias sintácticas (sujeto-verbo), mientras que otra podría identificar relaciones semánticas (sinónimos, antónimos). Los resultados de todas las cabezas se concatenan y se proyectan linealmente para formar la salida final. Esto permite al modelo analizar el contexto desde <span class="highlight">múltiples ángulos simultáneamente</span>, sin añadir tiempo de cómputo significativo.
+            </p>
+
+            <h3><span class="emoji">🧮</span> Red Feed-Forward Posicional (Position-wise Feed-Forward Network)</h3>
+            <p>
+                Tras el mecanismo de atención, cada posición en la secuencia pasa por una red neuronal simple y completamente conectada. Es importante destacar que esta red se aplica <span class="highlight">de forma independiente y idéntica a cada posición</span>.
+            </p>
+            <div class="equation">
+                $FFN(x) = max(0, xW_1 + b_1)W_2 + b_2$
+            </div>
+            <p>
+                Esta red permite al modelo introducir no linealidades y procesar aún más las representaciones generadas por el mecanismo de atención.
+            </p>
+            <p>
+                Adicionalmente, cada bloque del Transformer incorpora:
+            </p>
+            <ul>
+                <li><span class="emoji">🔄</span> **Conexiones Residuales:** Ayudan a que el gradiente fluya más fácilmente a través de capas profundas, mitigando el problema de desvanecimiento del gradiente y facilitando el entrenamiento.</li>
+                <li><span class="emoji">📏</span> **Normalización de Capas:** Normaliza las activaciones dentro de cada capa para estabilizar el proceso de entrenamiento y acelerar la convergencia.</li>
+            </ul>
+
+            <h3><span class="emoji">📊</span> Capa Lineal y Softmax Final</h3>
+            <p>
+                Al finalizar el procesamiento en el decoder, el modelo necesita transformar sus representaciones internas en predicciones tangibles, como la probabilidad de cada palabra en el vocabulario de salida.
+            </p>
+            <ul>
+                <li>**Capa Lineal:** Una capa densa convierte los vectores de salida del decoder en <span class="highlight">puntuaciones (logits)</span> para cada palabra potencial en el vocabulario.</li>
+                <li>**Función Softmax:** Esta función de activación convierte los logits en una <span class="highlight">distribución de probabilidades</span> sobre todo el vocabulario, donde la suma de todas las probabilidades es 1.</li>
+            </ul>
+            <p>
+                ✨ **Ejemplo:** Si la entrada es "El gato está…", la salida probable podría ser:
+                <br>• dormido (85%)
+                <br>• corriendo (10%)
+                <br>• feliz (5%)
+                <br>El modelo seleccionaría la palabra con la probabilidad más alta ("dormido" en este caso) como la siguiente en la secuencia.
+            </p>
+        </section>
+
+        <section id="flujo">
+            <h2><span class="emoji">🔄</span> Flujo del Modelo Transformer</h2>
+            <p>
+            
+                    <img src="image-1024x760.webp" alt="Diagrama de Arquitectura Transformer">
+                El proceso de cómo el Transformer maneja las secuencias se puede dividir en dos fases principales:  
+            <h3><span class="emoji">📥</span> Codificación (Proceso del Encoder)</h3>
+            <p>
+                La fase de codificación toma la secuencia de entrada y la prepara para ser comprendida por el modelo:
+            </p>
+            <ul>
+                <li>**Embedding + Posición:** Cada palabra de la secuencia de entrada se convierte en un vector (embedding) y se le añade la codificación posicional para mantener la información de orden.</li>
+                <li>**Auto-atención Múltiple:** Las representaciones de las palabras pasan a través de múltiples capas de auto-atención multi-cabeza, permitiendo que cada palabra "atienda" a otras palabras en la misma secuencia para construir un contexto rico.</li>
+                <li>**Red Neuronal Feed Forward:** Después de la auto-atención, cada posición pasa por una red neuronal feed-forward independiente para procesar aún más la información contextualizada.</li>
+            </ul>
+
+            <h3><span class="emoji">📤</span> Decodificación (Proceso del Decoder)</h3>
+            <p>
+                La fase de decodificación genera la secuencia de salida palabra por palabra, basándose en la información del encoder y las palabras ya generadas:
+            </p>
+            <ul>
+                <li>**Embedding de la palabra anterior:** La palabra generada en el paso anterior se convierte en un embedding y se le añade su codificación posicional.</li>
+                <li>**Posición + Auto-atención en el Output:** Esta representación pasa por una capa de auto-atención enmascarada, lo que significa que una palabra solo puede atender a las palabras que la preceden en la secuencia de salida (para evitar "hacer trampa" y ver el futuro).</li>
+                <li>**Atención Cruzada con la salida del Encoder:** Una capa de atención adicional permite que el decoder "atienda" a las representaciones clave generadas por el encoder. Esto es crucial para que el decoder sepa qué partes de la entrada son relevantes para generar la siguiente palabra de salida.</li>
+                <li>**Feed Forward + Capa Final + Softmax:** Finalmente, la salida pasa por otra red neuronal feed-forward y una capa lineal seguida de una función Softmax para producir la distribución de probabilidad de la siguiente palabra en el vocabulario.</li>
+            </ul>
+        </section>
+
+        <section id="ventajas">
+            <h2><span class="emoji">⚙️</span> Ventajas Sobresalientes de la Arquitectura Transformer</h2>
+            <p>
+                El Transformer ha superado a las arquitecturas previas de PLN en varios aspectos críticos. La siguiente tabla resume sus principales ventajas:
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th><span class="emoji">🧪</span> Métrica</th>
+                        <th>RNN (Redes Recurrentes)</th>
+                        <th>CNN (Redes Convolucionales)</th>
+                        <th>Transformer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Paralelización</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                        <td>✅✅✅</td>
+                    </tr>
+                    <tr>
+                        <td>Eficiencia en secuencias largas</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                        <td>✅✅✅</td>
+                    </tr>
+                    <tr>
+                        <td>Interpretabilidad (atención)</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>✅✅</td>
+                    </tr>
+                    <tr>
+                        <td>Complejidad computacional</td>
+                        <td>$O(n \cdot d^2)$</td>
+                        <td>$O(k \cdot n \cdot d^2)$</td>
+                        <td>$O(n^2 \cdot d)$</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>
+                🟢 El Transformer reduce la longitud del camino para capturar dependencias a $O(1)$, frente a $O(n)$ en RNN.
+            </p>
+            <h3><span class="emoji">🚀</span> ¿Por qué es tan potente?</h3>
+            <ul>
+                <li>Mejora significativamente el rendimiento frente a arquitecturas tradicionales como RNN, LSTM y GRU.</li>
+                <li>Procesa textos más largos sin perder contexto, gracias a su mecanismo de atención que puede conectar palabras distantes.</li>
+                <li>Entrena más rápido debido a su capacidad de paralelización, a diferencia de las RNN que procesan secuencialmente.</li>
+                <li>Es la base de modelos modernos y de vanguardia como BERT, GPT, RoBERTa, XLNet, y muchos otros que han impulsado el estado del arte en NLP.</li>
+            </ul>
+        </section>
+
+        <section id="resultados">
+            <h2><span class="emoji">📈</span> Resultados y Rendimiento</h2>
+            <p>
+                La introducción del Transformer marcó hitos significativos en el rendimiento de diversas tareas de PLN:
+            </p>
+            <ul>
+                <li>WMT 2014 Inglés → Alemán: Logró un impresionante 28.4 BLEU, estableciendo un nuevo récord en su época.</li>
+                <li>WMT 2014 Inglés → Francés: Alcanzó 41.0 BLEU con tan solo 3.5 días de entrenamiento utilizando 8 GPUs.</li>
+                <li>Superó consistentemente a modelos previos de vanguardia como GNMT, ConvS2S y ByteNet, tanto en velocidad de entrenamiento como en calidad de los resultados obtenidos.</li>
+            </ul>
+        </section>
+
+        <section id="aplicaciones">
+            <h2><span class="emoji">📦</span> Aplicaciones del Transformer</h2>
+            <p>
+                La versatilidad y el rendimiento superior del Transformer lo han convertido en la arquitectura base para una amplia gama de aplicaciones de IA, incluyendo:
+            </p>
+            <ul>
+                <li>📚 **Traducción automática:** Es el pilar de sistemas modernos como Google Translate, permitiendo traducciones más fluidas y precisas.</li>
+                <li>🤖 **Modelos de lenguaje:** La base de modelos generativos y de comprensión de texto como GPT (Generative Pre-trained Transformer), BERT (Bidirectional Encoder Representations from Transformers), T5, etc.</li>
+                <li>🎧 **Reconocimiento y análisis de audio:** Utilizado en tareas de transcripción de voz a texto y análisis de patrones en señales de audio.</li>
+                <li>🧬 **Predicción de estructuras biológicas:** Aplicaciones innovadoras en bioinformática, como el revolucionario AlphaFold de DeepMind para la predicción de estructuras de proteínas.</li>
+                <li>🖼️ **Visión por computadora:** Adaptaciones como Vision Transformer (ViT) han demostrado un rendimiento excepcional en tareas de clasificación de imágenes y detección de objetos.</li>
+            </ul>
+        </section>
+
+        <section id="implementacion">
+            <h2><span class="emoji">🛠️</span> Implementación en Código</h2>
+            <p>
+                Para aquellos interesados en construir o experimentar con modelos Transformer, existen diversos frameworks y librerías que facilitan su implementación:
+            </p>
+            <ul>
+                <li>**Frameworks de Deep Learning:**
+                    <ul>
+                        <li>TensorFlow</li>
+                        <li>PyTorch</li>
+                        <li>JAX</li>
+                    </ul>
+                </li>
+                <li>**Librerías especializadas:**
+                    <ul>
+                        <li><span class="highlight">HuggingFace Transformers:</span> Una de las librerías más populares y completas para trabajar con modelos basados en Transformer.</li>
+                        <li>Tensor2Tensor: Librería original de Google Brain que implementa el Transformer.</li>
+                        <li>fairseq: Un toolkit de Facebook AI Research para modelos de secuencia a secuencia.</li>
+                    </ul>
+                </li>
+            </ul>
+            <p>
+                Puedes encontrar el código oficial de los autores en GitHub:
+                <br><a href="https://github.com/tensorflow/tensor2tensor" target="_blank" rel="noopener noreferrer">
+                    🔗 Código oficial de los autores en GitHub – Tensor2Tensor
+                </a>
+            </p>
+        </section>
+
+        <section id="video">
+            <h2><span class="emoji">🎥</span> Video Explicativo</h2>
+            <p>
+                Para una comprensión más visual y dinámica de la arquitectura Transformer, te invitamos a ver el siguiente video:
+            </p>
+            <div class="video-container">
+                <iframe
+                    src="https://www.youtube.com/embed/o-pf_pdbDgo?si=kBIN7f_D010GU8W0"
+                    title="YouTube video player"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen
+                ></iframe>
+            </div>
+        </section>
+
+        <section id="conclusion">
+            <h2><span class="emoji">📝</span> Conclusión</h2>
+            <p>
+                El Transformer no es solo una arquitectura más; ha <span class="highlight">transformado por completo</span> el panorama del procesamiento de lenguaje y otras tareas secuenciales en la inteligencia artificial.
+            </p>
+            <p>
+                Gracias a su estructura innovadora, basada completamente en el mecanismo de atención, ha demostrado la capacidad de entrenarse más rápido, manejar contextos de dependencia más largos y lograr resultados superiores en una multitud de benchmarks.
+            </p>
+            <p>
+                Hoy en día, el Transformer es la piedra angular sobre la que se construyen los modelos de inteligencia artificial más avanzados y potentes del mundo, desde asistentes virtuales hasta sistemas de generación de contenido y traducción. Su impacto continúa expandiéndose a nuevos dominios, consolidando su posición como una de las innovaciones más importantes en el campo del aprendizaje profundo.
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Arquitectura Transformer. Todos los derechos reservados.</p>
+    </footer>
+
+</body>
+</html>
